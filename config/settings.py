@@ -42,6 +42,8 @@ INSTALLED_APPS = [
     'ticketsapp.apps.TicketsappConfig',
 ]
 
+AUTH_USER_MODEL = 'usersapp.UserModel'
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
