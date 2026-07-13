@@ -49,11 +49,11 @@ class VehicleModel(models.Model):
         PLANE = "p", "plane"
         BUS = "b", "bus"
     model = models.CharField(max_length=200, null=False, blank=False)
-    capacity = models.PositiveIntegerField(null=False, blank=False)
+    # capacity = models.PositiveIntegerField(null=False, blank=False)
     type = models.CharField(max_length=20, choices=VehicleTypeStatus.choices, null=False, blank=False)
 
     def __str__(self):
-        return f"{self.type} - {self.model} - {self.capacity}"
+        return f"{self.type} - {self.model}"
 
 
 
@@ -73,6 +73,14 @@ class VehicleSectionModel(models.Model):
 class SeatModel(models.Model):
     number = models.PositiveIntegerField()
     vehicle = models.ForeignKey("VehicleModel", on_delete=models.CASCADE)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["vehicle", "number"],
+                name = "unique_seat_number_per_vehicle"
+            )
+        ]
     def __str__(self):
         return f"{self.number} from {self.vehicle.type} - {self.vehicle.model}"
 
@@ -80,11 +88,19 @@ class SeatModel(models.Model):
 class TripSeatModel(models.Model):
     class TripSeatStatus(models.TextChoices):
         AVAILABLE = "A", "available"
-        RESERVED = "r", "reserved"
+        # RESERVED = "r", "reserved"
         BOOKED = "b", "book"
     trip = models.ForeignKey("TripsModel", on_delete=models.CASCADE)
     seat = models.ForeignKey("SeatModel", on_delete=models.CASCADE)
     status = models.CharField(choices=TripSeatStatus.choices, default=TripSeatStatus.AVAILABLE)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["trip", "seat"],
+                name= "unique_seat_number_per_trip"
+            )
+        ]
 
     def __str__(self):
         return f"{self.trip.origin_terminal} to {self.trip.destination_terminal} - {self.seat.number} is {self.status}"
