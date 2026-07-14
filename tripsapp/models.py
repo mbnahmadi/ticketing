@@ -49,7 +49,7 @@ class VehicleModel(models.Model):
         PLANE = "p", "plane"
         BUS = "b", "bus"
     model = models.CharField(max_length=200, null=False, blank=False)
-    # capacity = models.PositiveIntegerField(null=False, blank=False)
+    capacity = models.PositiveIntegerField(null=False, blank=False)
     type = models.CharField(max_length=20, choices=VehicleTypeStatus.choices, null=False, blank=False)
 
     def __str__(self):
@@ -60,16 +60,19 @@ class VehicleModel(models.Model):
 class VehicleSectionModel(models.Model):
     row = models.CharField(max_length=100)
     vehicle = models.ForeignKey("VehicleModel", on_delete=models.CASCADE)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["row", "vehicle"],
+                name = "unique_row_per_vehicle"
+            )
+        ]
     
     def __str__(self):
         return f"{self.vehicle.type} - {self.vehicle.model} - {self.row}"
 
-# SEAT_STATUS_CHOICES = (
-#     ("available", "available"),
-#     ("booked", "booked"),
-#     ("reserved", "reserved"),
 
-# )
 class SeatModel(models.Model):
     number = models.PositiveIntegerField()
     vehicle = models.ForeignKey("VehicleModel", on_delete=models.CASCADE)
@@ -81,6 +84,15 @@ class SeatModel(models.Model):
                 name = "unique_seat_number_per_vehicle"
             )
         ]
+
+    def clean(self):
+        if self.number > self.vehicle.capacity:
+            raise ValidationError({"number": "The number of seats created exceeds the vehicle's capacity."})
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        super().save(*args, **kwargs)    
+
     def __str__(self):
         return f"{self.number} from {self.vehicle.type} - {self.vehicle.model}"
 
