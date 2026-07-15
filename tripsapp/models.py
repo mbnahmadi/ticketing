@@ -46,7 +46,7 @@ class TerminalModel(models.Model):
 class VehicleModel(models.Model):
     class VehicleTypeStatus(models.TextChoices):
         TRAIN = "t", "Train"
-        PLANE = "p", "plane"
+        PLANE = "a", "Airplane"
         BUS = "b", "bus"
     model = models.CharField(max_length=200, null=False, blank=False)
     capacity = models.PositiveIntegerField(null=False, blank=False)
@@ -75,7 +75,7 @@ class VehicleSectionModel(models.Model):
 
 class SeatModel(models.Model):
     number = models.PositiveIntegerField()
-    vehicle = models.ForeignKey("VehicleModel", on_delete=models.CASCADE)
+    vehicle = models.ForeignKey("VehicleModel", on_delete=models.CASCADE, related_name="seats")
 
     class Meta:
         constraints = [
@@ -86,8 +86,11 @@ class SeatModel(models.Model):
         ]
 
     def clean(self):
-        if self.number > self.vehicle.capacity:
-            raise ValidationError({"number": "The number of seats created exceeds the vehicle's capacity."})
+        super().clean()
+        if self.pk is None:
+            if self.vehicle.seats.count() >= self.vehicle.capacity:
+                raise ValidationError({"number": "The number of seats created exceeds the vehicle's capacity."})
+
 
     def save(self, *args, **kwargs):
         self.full_clean()
@@ -101,7 +104,7 @@ class TripSeatModel(models.Model):
     class TripSeatStatus(models.TextChoices):
         AVAILABLE = "A", "available"
         # RESERVED = "r", "reserved"
-        BOOKED = "b", "book"
+        BOOKED = "b", "booked"
     trip = models.ForeignKey("TripsModel", on_delete=models.CASCADE)
     seat = models.ForeignKey("SeatModel", on_delete=models.CASCADE)
     status = models.CharField(choices=TripSeatStatus.choices, default=TripSeatStatus.AVAILABLE)
@@ -115,4 +118,4 @@ class TripSeatModel(models.Model):
         ]
 
     def __str__(self):
-        return f"{self.trip.origin_terminal} to {self.trip.destination_terminal} - {self.seat.number} is {self.status}"
+        return f"{self.trip.origin_terminal} to {self.trip.destination_terminal} - {self.seat.vehicle.type} - {self.seat.number} is {self.status}"
