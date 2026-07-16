@@ -40,6 +40,12 @@ INSTALLED_APPS = [
     'usersapp.apps.UsersappConfig',
     'tripsapp.apps.TripsappConfig',
     'ticketsapp.apps.TicketsappConfig',
+
+    # drf
+    'rest_framework',
+    'rest_framework_simplejwt',
+
+    'drf_yasg',
 ]
 
 AUTH_USER_MODEL = 'usersapp.UserModel'
@@ -125,3 +131,11 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+# ----------- rest framework --------------
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    )
+}
