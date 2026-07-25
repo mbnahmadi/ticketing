@@ -12,25 +12,27 @@ class TerminalSerializer(serializers.ModelSerializer):
         fields = ["name", "city_name"]
 
 class TripsSerializer(serializers.ModelSerializer):
-    available_seat = serializers.SerializerMethodField()
+    available_seats = serializers.SerializerMethodField()
     vehicle = VehicleSerializer()
     origin_terminal = TerminalSerializer()
     destination_terminal = TerminalSerializer()
     class Meta:
         model = TripsModel
-        fields = ["vehicle", "origin_terminal", "destination_terminal", "start_datetime", "price", "available_seat"]
+        fields = ["id", "vehicle", "origin_terminal", "destination_terminal", "start_datetime", "price", "available_seats"]
 
-    def get_available_seat(self, obj):
-        return obj.tripseatmodel_set.filter(status="A").count()
+    def get_available_seats(self, obj):
+        return obj.tripseatmodel_set.filter(status=TripSeatModel.TripSeatStatus.AVAILABLE).count
+        # return obj.tripseatmodel_set.filter(status="A").count()
 
 
 class SeatSerializer(serializers.ModelSerializer):
-    model = SeatModel
-    fields = ["number", "vehicle"]
+    class Meta:
+        model = SeatModel
+        fields = ["number", "vehicle"]
 
 
 class TripSeatSerializer(serializers.ModelSerializer):
-    # seat = SeatSerializer()
+    seat = SeatSerializer()
     # trip = TripsSerializer()
     class Meta:
         model = TripSeatModel

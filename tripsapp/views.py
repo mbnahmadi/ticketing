@@ -21,7 +21,7 @@ class TripsListView(generics.ListAPIView):
     queryset = TripsModel.objects.all()
     serializer_class = TripsSerializer
 
-class TtripView(generics.RetrieveAPIView):
+class TripView(generics.RetrieveAPIView):
     queryset = TripsModel.objects.all()
     serializer_class = TripsSerializer
     lookup_field = "pk"
@@ -39,6 +39,9 @@ class TtripView(generics.RetrieveAPIView):
 
     # lookup_field = "trip"
 class TripSeatView(generics.ListAPIView):
+    """
+    return all seat for a trip
+    """
     # queryset = TripSeatModel.objects.all()
     serializer_class = TripSeatSerializer
 
