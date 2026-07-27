@@ -21,7 +21,7 @@ class TripsSerializer(serializers.ModelSerializer):
         fields = ["id", "vehicle", "origin_terminal", "destination_terminal", "start_datetime", "price", "available_seats"]
 
     def get_available_seats(self, obj):
-        return obj.tripseatmodel_set.filter(status=TripSeatModel.TripSeatStatus.AVAILABLE).count
+        return obj.tripseatmodel_set.filter(status=TripSeatModel.TripSeatStatus.AVAILABLE).count()
         # return obj.tripseatmodel_set.filter(status="A").count()
 
 
