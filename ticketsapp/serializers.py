@@ -1,6 +1,7 @@
 from rest_framework import serializers
-from .models import OrderModel
+from .models import OrderModel, TicketModel
 from tripsapp.models import TripsModel, TripSeatModel
+from tripsapp.serializers import TripSeatSerializer, TripsSerializer,VehicleSerializer,TerminalSerializer,TerminalSerializer
 from django.core.exceptions import ValidationError
 
 
@@ -32,4 +33,28 @@ class OrderSerializer(serializers.Serializer):
 
         return attrs
 
-        
+class OrderRetrieveSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = OrderModel
+        fields = ["order_number"]
+
+class TicketTripsSerializer(serializers.ModelSerializer):
+    vehicle = VehicleSerializer()
+    origin_terminal = TerminalSerializer()
+    destination_terminal = TerminalSerializer()
+    class Meta:
+        model = TripsModel
+        fields = ["id", "vehicle", "origin_terminal", "destination_terminal", "start_datetime"]
+
+class TicketTripSeatSerializer(serializers.ModelSerializer):
+    trip = TicketTripsSerializer()
+    class Meta:
+        model = TripSeatModel
+        fields = ["trip", "seat"]
+
+class TicketSerializer(serializers.ModelSerializer):
+    trip_seat = TicketTripSeatSerializer()
+    order = OrderRetrieveSerializer()
+    class Meta:
+        model = TicketModel
+        fields = [ "order", "trip_seat", "price", "issued_at"]
