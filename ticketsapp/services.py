@@ -11,15 +11,16 @@ def create_order(*, user, trip, trip_seats):
 
     locked_tripseats = (TripSeatModel.objects
                         .select_for_update()
+                        .select_related("seat")
                         .filter(id__in=[seat.id for seat in trip_seats])
                         )
 
     for seat in locked_tripseats:
         if seat.status != TripSeatModel.TripSeatStatus.AVAILABLE:
 
-            raise ValidationError(f"Seat number {seat.seat_number} is already reserved or inactive.")
+            raise ValidationError(f"Seat number {seat.seat.seat_number} is already reserved or inactive.")
 
-    total_price = trip.price * len(trip_seats)
+    total_price = trip.price * locked_tripseats.count()
 
     order = OrderModel.objects.create(
         user=user,
@@ -28,18 +29,18 @@ def create_order(*, user, trip, trip_seats):
     )
 
 
-    tickets = []
+    # tickets = []
 
-    for trip_seat in trip_seats:
+    for trip_seat in locked_tripseats:
 
-        ticket = TicketModel.objects.create(
+        TicketModel.objects.create(
             order=order,
             user=user,
             trip_seat=trip_seat,
             price=trip.price
         )
 
-        tickets.append(ticket)
+        # tickets.append(ticket)
 
         trip_seat.status = TripSeatModel.TripSeatStatus.BOOKED
         trip_seat.save()

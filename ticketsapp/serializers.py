@@ -15,6 +15,9 @@ class OrderSerializer(serializers.Serializer):
 
         if len(trip_seats) == 0:
             raise ValidationError({"trip_seats": "At least one seat must be selected."})
+        if len(trip_seats) != len(set(seat.id for seat in trip_seats)):
+            raise ValidationError({"you can select tripseat only one time."})
+
         for trip_seat in trip_seats:
             if trip_seat.trip != trip:
                 raise ValidationError(
@@ -33,10 +36,14 @@ class OrderSerializer(serializers.Serializer):
 
         return attrs
 
-class OrderRetrieveSerializer(serializers.ModelSerializer):
+
+
+
+class TicketOrderSerializer(serializers.ModelSerializer):
     class Meta:
         model = OrderModel
         fields = ["order_number"]
+
 
 class TicketTripsSerializer(serializers.ModelSerializer):
     vehicle = VehicleSerializer()
@@ -54,7 +61,21 @@ class TicketTripSeatSerializer(serializers.ModelSerializer):
 
 class TicketSerializer(serializers.ModelSerializer):
     trip_seat = TicketTripSeatSerializer()
-    order = OrderRetrieveSerializer()
+    order = TicketOrderSerializer()
     class Meta:
         model = TicketModel
         fields = [ "order", "trip_seat", "price", "issued_at"]
+
+
+class OrderTicketSerializer(serializers.ModelSerializer):
+    trip_seat = TicketTripSeatSerializer()
+    class Meta:
+        model = TicketModel
+        fields = ["price", "issued_at", "trip_seat"]
+
+class OrderRetrieveSerializer(serializers.ModelSerializer):
+    tickets = OrderTicketSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = OrderModel
+        fields = ["order_number" ,"issued_at" ,"final_price" ,"status", "tickets"]

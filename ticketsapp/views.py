@@ -2,10 +2,14 @@ from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework import status, generics
 from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
 
 from .models import OrderModel, TicketModel
-from .serializers import OrderSerializer, TicketSerializer
+from .serializers import OrderSerializer, TicketSerializer, OrderRetrieveSerializer
 from .services import create_order
+
+from django.db.models import Prefetch
+
 # Create your views here.
 
 class OrderCreateView(generics.CreateAPIView):
@@ -54,3 +58,22 @@ class TicketRetrieveView(generics.RetrieveAPIView):
             "trip_seat__seat",
             "trip_seat__trip__vehicle"
         )
+
+
+class OrderRetrieveView(generics.RetrieveAPIView):
+    permission_classes = [IsAuthenticated]
+    # queryset = OrderModel.objects.all()
+    serializer_class = OrderRetrieveSerializer
+    lookup_field = "order_number"
+    def get_queryset(self):
+        return OrderModel.objects.prefetch_related(
+            Prefetch("tickets", 
+            queryset = TicketModel.objects.select_related(
+                "trip_seat",
+                "trip_seat__seat",
+                "trip_seat__trip",
+                "trip_seat__trip__vehicle",
+                "trip_seat__trip__origin_terminal",
+                "trip_seat__trip__destination_terminal",
+            ),
+            )).filter(user=self.request.user)

@@ -16,6 +16,14 @@ class TicketModel(models.Model):
     price = models.DecimalField(max_digits=10,decimal_places=2)
     issued_at = models.DateTimeField(auto_now_add=True)
 
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["trip_seat"],
+                name="unique_ticket_per_trip_seat"
+            )
+        ]
+
     def __str__(self):
         return f"{self.user} - {self.trip_seat.seat.number}"
 
