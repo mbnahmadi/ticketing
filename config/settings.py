@@ -48,6 +48,8 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
 
     'drf_yasg',
+    # django debug tools
+    'debug_toolbar',
 ]
 
 AUTH_USER_MODEL = 'usersapp.UserModel'
@@ -59,6 +61,8 @@ MIDDLEWARE = [
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
+    # django debug tools
+    "debug_toolbar.middleware.DebugToolbarMiddleware",
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
@@ -162,3 +166,9 @@ SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=60),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
 }
+
+INTERNAL_IPS = [
+    # ...
+    "127.0.0.1",
+    # ...
+]
