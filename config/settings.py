@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'drf_yasg',
     # django debug tools
     'debug_toolbar',
+    'silk'
 ]
 
 AUTH_USER_MODEL = 'usersapp.UserModel'
@@ -62,6 +63,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     # django debug tools
+    'silk.middleware.SilkyMiddleware',
     "debug_toolbar.middleware.DebugToolbarMiddleware",
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
@@ -172,3 +174,4 @@ INTERNAL_IPS = [
     "127.0.0.1",
     # ...
 ]
+
